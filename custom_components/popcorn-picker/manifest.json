@@ -1,0 +1,9 @@
+{
+    "domain": "popcorn_picker",
+    "name": "Popcorn Picker",
+    "version": "0.1.0",
+    "documentation": "https://github.com/your-username/popcorn-picker",
+    "requirements": ["requests"],
+    "dependencies": [],
+    "codeowners": ["@your-github-username"]
+  }
