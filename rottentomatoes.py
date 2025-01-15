@@ -2,11 +2,13 @@ import requests
 import uuid
 from typing import Optional, Dict
 
+
 class RTClient:
     """
     Client to interact with the Rotten Tomatoes API
     Inspired by https://github.com/sct/overseerr/blob/develop/server/api/rating/rottentomatoes.ts
     """
+
     def __init__(self):
         self.base_url = "https://79frdp12pn-dsn.algolia.net/1/indexes/*"
         self.headers = {
@@ -21,17 +23,25 @@ class RTClient:
     def get_movie_ratings(self, name: str, year: int) -> Optional[Dict[str, any]]:
         try:
             # Send request to Algolia API
-            response = requests.post(f"{self.base_url}/queries", json={
-                "requests": [{
-                    "indexName": "content_rt",
-                    "query": name,
-                    "params": "filters=isEmsSearchable%20%3D%201&hitsPerPage=20"
-                }]
-            }, headers=self.headers)
+            response = requests.post(
+                f"{self.base_url}/queries",
+                json={
+                    "requests": [
+                        {
+                            "indexName": "content_rt",
+                            "query": name,
+                            "params": "filters=isEmsSearchable%20%3D%201&hitsPerPage=20",
+                        }
+                    ]
+                },
+                headers=self.headers,
+            )
             data = response.json()
 
             # Find results for content_rt
-            content_results = next((r for r in data.get("results", []) if r["index"] == "content_rt"), None)
+            content_results = next(
+                (r for r in data.get("results", []) if r["index"] == "content_rt"), None
+            )
 
             if not content_results:
                 return None
@@ -46,10 +56,14 @@ class RTClient:
             return {
                 "title": movie["title"],
                 "url": f"https://www.rottentomatoes.com/m/{movie['vanity']}",
-                "criticsRating": self._get_critics_rating(movie["rottenTomatoes"]["criticsScore"],
-                                                         movie["rottenTomatoes"]["certifiedFresh"]),
+                "criticsRating": self._get_critics_rating(
+                    movie["rottenTomatoes"]["criticsScore"],
+                    movie["rottenTomatoes"]["certifiedFresh"],
+                ),
                 "criticsScore": movie["rottenTomatoes"]["criticsScore"],
-                "audienceRating": self._get_audience_rating(movie["rottenTomatoes"]["audienceScore"]),
+                "audienceRating": self._get_audience_rating(
+                    movie["rottenTomatoes"]["audienceScore"]
+                ),
                 "audienceScore": movie["rottenTomatoes"]["audienceScore"],
                 "year": int(movie["releaseYear"]),
             }
@@ -60,9 +74,25 @@ class RTClient:
     def _find_matching_movie(self, hits, name, year):
         # Try various strategies to find a matching movie
         for strategy in [
-            lambda: next((movie for movie in hits if movie["releaseYear"] == year and movie["title"] == name), None),
-            lambda: next((movie for movie in hits if movie["releaseYear"] == year and name in movie["title"]), None),
-            lambda: next((movie for movie in hits if movie["releaseYear"] == year), None),
+            lambda: next(
+                (
+                    movie
+                    for movie in hits
+                    if movie["releaseYear"] == year and movie["title"] == name
+                ),
+                None,
+            ),
+            lambda: next(
+                (
+                    movie
+                    for movie in hits
+                    if movie["releaseYear"] == year and name in movie["title"]
+                ),
+                None,
+            ),
+            lambda: next(
+                (movie for movie in hits if movie["releaseYear"] == year), None
+            ),
             lambda: next((movie for movie in hits if movie["title"] == name), None),
         ]:
             movie = strategy()

@@ -1,3 +1,1 @@
-"""Constants for the Popcorn Picker integration."""
-
-DOMAIN = "popcorn_picker"
+DOMAIN = "popcorn-picker"

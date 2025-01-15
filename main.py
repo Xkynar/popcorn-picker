@@ -10,10 +10,15 @@ if __name__ == "__main__":
     try:
         catalog = cinemaClient.get_movie_catalog()
         # Remove duplicates by using a set of (originaltitle, releasedate) tuples
-        unique_movies = list({(movie["originaltitle"], movie["releasedate"]) for movie in catalog})
+        unique_movies = list(
+            {(movie["originaltitle"], movie["releasedate"]) for movie in catalog}
+        )
 
         # Convert back to a list of dictionaries with unique title/date pairs
-        catalog = [{"originaltitle": title, "releasedate": date} for title, date in unique_movies]
+        catalog = [
+            {"originaltitle": title, "releasedate": date}
+            for title, date in unique_movies
+        ]
 
         results = []
         for movie in catalog:

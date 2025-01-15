@@ -1,19 +1,29 @@
-"""Popcorn Picker integration."""
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.typing import ConfigType
+from dataclasses import dataclass
+from .coordinator import PopcornCoordinator
+from .const import DOMAIN
 
-DOMAIN = "popcorn_picker"
+# Define a type alias for the config entry runtime data
+type PopcornConfigEntry = ConfigEntry["PopcornData"]
 
-async def async_setup(hass: HomeAssistant, config: dict):
-    """Set up the Popcorn Picker integration."""
-    return True
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+@dataclass
+class PopcornData:
+    coordinator: PopcornCoordinator
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: PopcornConfigEntry) -> bool:
     """Set up Popcorn Picker from a config entry."""
-    hass.data[DOMAIN] = {}
-    return True
+    # Initialize the coordinator
+    coordinator = PopcornCoordinator(hass)
+    await coordinator.async_config_entry_first_refresh()
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Unload a config entry."""
-    hass.data.pop(DOMAIN, None)
+    # Assign the runtime_data
+    entry.runtime_data = PopcornData(coordinator=coordinator)
+
+    # Forward setup to platforms
+    await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
+
     return True

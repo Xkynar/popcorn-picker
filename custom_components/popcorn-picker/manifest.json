@@ -1,9 +1,12 @@
 {
-    "domain": "popcorn_picker",
-    "name": "Popcorn Picker",
-    "version": "0.1.0",
-    "documentation": "https://github.com/your-username/popcorn-picker",
-    "requirements": ["requests"],
-    "dependencies": [],
-    "codeowners": ["@your-github-username"]
-  }
+  "codeowners": ["@Xkynar"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Xkynar/popcorn-picker",
+  "domain": "popcorn-picker",
+  "iot_class": "cloud_polling",
+  "name": "Popcorn Picker",
+  "requirements": [],
+  "version": "1.0.0",
+  "platforms": ["sensor"]
+}

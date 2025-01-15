@@ -1,27 +1,19 @@
-"""Sensor platform for Popcorn Picker."""
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from .entity import MovieSensor
+from . import PopcornConfigEntry
 
-async def async_setup_entry(hass, entry, async_add_entities):
-    """Set up sensors based on a config entry."""
-    async_add_entities([PopcornPickerSensor()])
 
-class PopcornPickerSensor(Entity):
-    """Representation of a Popcorn Picker sensor."""
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: PopcornConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up movie sensors for Popcorn Picker."""
+    # Access coordinator from runtime_data
+    coordinator = entry.runtime_data.coordinator
 
-    def __init__(self):
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return "Popcorn Picker"
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    async def async_update(self):
-        """Fetch new state data."""
-        # Logic to fetch data and update self._state
-        self._state = "Example State"
+    # Create MovieSensor entities for all movies
+    entities = [MovieSensor(movie) for movie in coordinator.data]
+    async_add_entities(entities)

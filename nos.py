@@ -1,7 +1,9 @@
 import requests
 
+
 class NOSClient:
     """Client to interact with NOS Cinemas API"""
+
     def __init__(self):
         self.base_url = "https://www.cinemas.nos.pt/graphql/execute.json/cinemas"
         pass
