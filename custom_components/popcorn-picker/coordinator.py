@@ -1,44 +1,38 @@
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.core import HomeAssistant
-import asyncio
+"""The Movie Sensor Coordinator."""
+
 import datetime
 import logging
+
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
+from .api import MovieAPI
+from .const import CATALOG_UPDATE_INTERVAL, DOMAIN
+from .types import Movie
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class PopcornCoordinator(DataUpdateCoordinator):
-    """Coordinator to fetch and update movie data."""
+class MovieSensorCoordinator(DataUpdateCoordinator[list[Movie]]):
+    """Coordinator to manage movie data updates."""
 
-    def __init__(self, hass: HomeAssistant):
+    def __init__(self, hass: HomeAssistant, api: MovieAPI) -> None:
         """Initialize the coordinator."""
+        self.api = api
         super().__init__(
             hass,
             _LOGGER,
-            name="Popcorn Picker Coordinator",
-            update_interval=datetime.timedelta(seconds=30),
-            always_update=True,
+            name=DOMAIN,
+            update_interval=datetime.timedelta(seconds=CATALOG_UPDATE_INTERVAL),
         )
-        self.data = []
 
-    async def _async_update_data(self):
-        """Fetch data from APIs."""
-        # Mock API data - Replace with real API calls
-        mock_movies = [
-            {
-                "uuid": "1",
-                "title": "Movie A",
-                "rating": "85%",
-                "genre": "Drama",
-                "duration": "120",
-            },
-            {
-                "uuid": "2",
-                "title": "Movie B",
-                "rating": "92%",
-                "genre": "Action",
-                "duration": "110",
-            },
-        ]
-        await asyncio.sleep(1)  # Simulate API call delay
-        return mock_movies
+    async def _async_setup(self) -> None:
+        pass
+
+    async def _async_update_data(self) -> list[Movie]:
+        """Fetch the latest movie list."""
+        try:
+            return await self.api.fetch_movies()
+        except Exception as e:
+            _LOGGER.error("Error fetching movies", extra={"error": e})
+            return []
